@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "592048758547",
+    "project_id": "the-wall-bb488",
+    "storage_bucket": "the-wall-bb488.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:592048758547:android:f26346419d40e9d65904e6",
+        "android_client_info": {
+          "package_name": "com.example.social_medial_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5zGefN4WsSGN-7QAPKu4oTa62zMyaqrk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
