@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:social_medial_app/auth/auth_service.dart';
 import 'package:social_medial_app/components/wall_button.dart';
 import 'package:social_medial_app/components/wall_textField.dart';
+import 'package:social_medial_app/errors/error_handler.dart';
 
 class LoginPage extends StatelessWidget {
   final void Function() onTap;
@@ -14,8 +16,17 @@ class LoginPage extends StatelessWidget {
     TextEditingController passwordController = TextEditingController();
 
     //login function
-    void login() {
+    void login() async {
       //TODO: implement login functionality.
+      //auth service.
+      final authService = AuthService();
+      //logging in.
+      try {
+        await authService.signInWithEmailAndPassword(
+            context, emailController.text, passwordController.text);
+      } catch (e) {
+        ErrorHandler.showError(context, "Error :${e.toString()}");
+      }
     }
 
     return Scaffold(
