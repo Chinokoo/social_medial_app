@@ -17,15 +17,28 @@ class LoginPage extends StatelessWidget {
 
     //login function
     void login() async {
-      //TODO: implement login functionality.
       //auth service.
       final authService = AuthService();
+
+      // Check for empty fields
+      if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+            "Please fill in all fields",
+            style: TextStyle(fontSize: 25, color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ));
+        return;
+      }
       //logging in.
       try {
         await authService.signInWithEmailAndPassword(
             context, emailController.text, passwordController.text);
       } catch (e) {
-        ErrorHandler.showError(context, "Error :${e.toString()}");
+        if (context.mounted) {
+          ErrorHandler.showError(context, "Error :${e.toString()}");
+        }
       }
     }
 
@@ -72,6 +85,19 @@ class LoginPage extends StatelessWidget {
                 hintText: "Password",
                 obscureText: true,
               ),
+
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                    child: Text(
+                      "Forgot Password?",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
               //log in button.
               WallButton(
                 buttonText: "login",
@@ -82,7 +108,7 @@ class LoginPage extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 26),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
                       "Don't have an account?",

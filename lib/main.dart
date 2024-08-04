@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:social_medial_app/auth/auth_page.dart';
 import 'package:social_medial_app/auth/login_or_registerPage.dart';
 import 'package:social_medial_app/themes/dark_mode.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -27,7 +28,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: darkMode,
       home: const Scaffold(
-        body: LoginOrRegisterpage(),
+        body: AuthPage(),
       ),
     );
   }

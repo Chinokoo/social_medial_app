@@ -49,6 +49,24 @@ class AuthService {
   }
 
   //sign up method.
+  Future<UserCredential?> signUpWithEmailAndPassword(
+      BuildContext context, String email, String password) async {
+    //try to create a new user with email and password.
+    try {
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = getErrorMessage(e.code);
+      ErrorHandler.showError(context, errorMessage);
+      return null;
+    } catch (e) {
+      ErrorHandler.showError(context, 'An error occurred. Please try again.');
+      return null;
+    }
+  }
+
   //sign out method.
   Future<void> signOut() async {
     await auth.signOut();

@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:social_medial_app/auth/auth_service.dart';
 import 'package:social_medial_app/components/wall_button.dart';
 import 'package:social_medial_app/components/wall_textField.dart';
+import 'package:social_medial_app/errors/error_handler.dart';
 
 class RegisterPage extends StatelessWidget {
   final void Function() onTap;
@@ -10,13 +13,47 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //controllers
+    TextEditingController usernameController = TextEditingController();
     TextEditingController emailController = TextEditingController();
     TextEditingController passwordController = TextEditingController();
     TextEditingController confirmPasswordController = TextEditingController();
 
     //login function
-    void signUp() {
-      //TODO: implement signup functionality.
+    void signUp() async {
+      // Check for empty fields
+      if (usernameController.text.isEmpty ||
+          emailController.text.isEmpty ||
+          passwordController.text.isEmpty ||
+          confirmPasswordController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+            "Please fill in all fields",
+            style: TextStyle(fontSize: 25, color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ));
+        return;
+      }
+      try {
+        if (passwordController.text == confirmPasswordController.text) {
+          final authService = AuthService();
+
+          await authService.signUpWithEmailAndPassword(
+              context, emailController.text, passwordController.text);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+              "passwords do not match",
+              style: TextStyle(fontSize: 25, color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+          ));
+        }
+      } on FirebaseAuthException catch (e) {
+        if (context.mounted) {
+          ErrorHandler.showError(context, "Error :${e.toString()}");
+        }
+      }
     }
 
     return Scaffold(
@@ -55,6 +92,10 @@ class RegisterPage extends StatelessWidget {
                     fontSize: 40, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.right,
               ),
+              WallTextfield(
+                  hintText: "Name",
+                  obscureText: false,
+                  controller: usernameController),
               //email input.
               WallTextfield(
                 controller: emailController,
@@ -82,7 +123,7 @@ class RegisterPage extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(vertical: 10, horizontal: 26),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
                       "Don't have an account?",
