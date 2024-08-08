@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:social_medial_app/components/wall_list_tile.dart';
 
 class UsersPage extends StatelessWidget {
   const UsersPage({super.key});
@@ -31,11 +32,11 @@ class UsersPage extends StatelessWidget {
                 //get individual user
                 final user = users[index];
 
+                //get data from each user
+                String username = user["username"];
+                String email = user["email"];
                 //build user list tile
-                return ListTile(
-                  title: Text(user["username"]),
-                  subtitle: Text(user["email"]),
-                );
+                return WallListTile(title: username, subtitle: email);
               },
             );
           },
