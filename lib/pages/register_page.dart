@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:social_medial_app/auth/auth_service.dart';
 import 'package:social_medial_app/components/wall_button.dart';
 import 'package:social_medial_app/components/wall_textField.dart';
-import 'package:social_medial_app/errors/error_handler.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatelessWidget {
   final void Function() onTap;
@@ -18,13 +18,34 @@ class RegisterPage extends StatelessWidget {
     TextEditingController passwordController = TextEditingController();
     TextEditingController confirmPasswordController = TextEditingController();
 
+    // create a user document and collect them in firestore.
+    Future<void> createUserDocument(UserCredential? userCredential) async {
+      if (userCredential != null && userCredential.user != null) {
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(userCredential.user!.email)
+            .set({
+          'email': userCredential.user!.email,
+          'username': usernameController.text,
+        });
+      }
+    }
+
     //login function
     void signUp() async {
+      //showing a loading indicator
+      showDialog(
+          context: context,
+          builder: (context) => const Center(
+                child: CircularProgressIndicator(),
+              ));
       // Check for empty fields
       if (usernameController.text.isEmpty ||
           emailController.text.isEmpty ||
           passwordController.text.isEmpty ||
           confirmPasswordController.text.isEmpty) {
+        //popping the loading indicator.
+        Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
             "Please fill in all fields",
@@ -34,24 +55,84 @@ class RegisterPage extends StatelessWidget {
         ));
         return;
       }
+      // creating user
       try {
+        //checking if email already exists
+        final userDoc = await FirebaseFirestore.instance
+            .collection("Users")
+            .doc(emailController.text)
+            .get();
+
+        if (userDoc.exists) {
+          //email already in use
+          //popping the loading indicator
+          if (context.mounted) {
+            Navigator.pop(context);
+
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text(
+                "Email Already in use",
+                style: TextStyle(fontSize: 25, color: Colors.white),
+              ),
+              backgroundColor: Colors.red,
+            ));
+
+            return;
+          }
+        }
+        //if password is equal to confirm password create user
         if (passwordController.text == confirmPasswordController.text) {
           final authService = AuthService();
 
-          await authService.signUpWithEmailAndPassword(
-              context, emailController.text, passwordController.text);
+          //creating the user
+          if (context.mounted) {
+            UserCredential? userCredential =
+                await authService.signUpWithEmailAndPassword(
+                    context,
+                    emailController.text,
+                    passwordController.text,
+                    usernameController.text);
+
+            // create a user document and collect them in firestore.
+            createUserDocument(userCredential);
+            //clear the controllers.
+            usernameController.clear();
+            emailController.clear();
+            passwordController.clear();
+            confirmPasswordController.clear();
+
+            //popping the loading indicator
+            if (context.mounted) {
+              Navigator.pop(context);
+            }
+
+            //show snackbar that account has been created successfully.
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text(
+                "Account created successfully",
+                style: TextStyle(fontSize: 25, color: Colors.white),
+              ),
+              backgroundColor: Colors.green,
+            ));
+          }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-              "passwords do not match",
-              style: TextStyle(fontSize: 25, color: Colors.white),
-            ),
-            backgroundColor: Colors.red,
-          ));
+          //popping the loading indicator
+          if (context.mounted) {
+            Navigator.pop(context);
+            //showing snackbar that passwords do not match
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text(
+                "passwords do not match",
+                style: TextStyle(fontSize: 25, color: Colors.white),
+              ),
+              backgroundColor: Colors.red,
+            ));
+          }
         }
-      } on FirebaseAuthException catch (e) {
+      } catch (e) {
         if (context.mounted) {
-          ErrorHandler.showError(context, "Error :${e.toString()}");
+          //popping the loading indicator
+          Navigator.pop(context);
         }
       }
     }
@@ -65,7 +146,7 @@ class RegisterPage extends StatelessWidget {
             children: [
               //spacing
               const SizedBox(
-                height: 80,
+                height: 50,
               ),
               //icon.
               Center(
@@ -83,13 +164,13 @@ class RegisterPage extends StatelessWidget {
                 "Register With ",
                 style: GoogleFonts.robotoCondensed(
                     fontWeight: FontWeight.bold,
-                    fontSize: 80,
+                    fontSize: 70,
                     color: Theme.of(context).colorScheme.inversePrimary),
               ),
               Text(
                 "                         T H E     W A L L !",
                 style: GoogleFonts.robotoCondensed(
-                    fontSize: 40, fontWeight: FontWeight.bold),
+                    fontSize: 30, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.right,
               ),
               WallTextfield(

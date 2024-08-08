@@ -38,33 +38,35 @@ class AuthService {
           email: email, password: password);
 
       return userCredential;
-    } on FirebaseAuthException catch (e) {
-      String errorMessage = getErrorMessage(e.code);
-      ErrorHandler.showError(context, errorMessage);
-      return null;
     } catch (e) {
-      ErrorHandler.showError(context, 'An error occurred. Please try again.');
-      return null;
+      String errorMessage = "Wrong email or password! ";
+
+      if (context.mounted) {
+        ErrorHandler.showError(context, errorMessage);
+        return null;
+      }
     }
+    return null;
   }
 
   //sign up method.
-  Future<UserCredential?> signUpWithEmailAndPassword(
-      BuildContext context, String email, String password) async {
+  Future<UserCredential?> signUpWithEmailAndPassword(BuildContext context,
+      String email, String password, String username) async {
     //try to create a new user with email and password.
     try {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
 
       return userCredential;
-    } on FirebaseAuthException catch (e) {
-      String errorMessage = getErrorMessage(e.code);
-      ErrorHandler.showError(context, errorMessage);
-      return null;
     } catch (e) {
-      ErrorHandler.showError(context, 'An error occurred. Please try again.');
-      return null;
+      String errorMessage = "An Error Occurred! ";
+
+      if (context.mounted) {
+        ErrorHandler.showError(context, errorMessage);
+        return null;
+      }
     }
+    return null;
   }
 
   //sign out method.

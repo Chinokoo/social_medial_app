@@ -6,7 +6,7 @@ class ErrorHandler {
       SnackBar(
         content: Text(
           message,
-          style: TextStyle(fontSize: 25, color: Colors.white),
+          style: const TextStyle(fontSize: 25, color: Colors.white),
         ),
         backgroundColor: Colors.red,
       ),
